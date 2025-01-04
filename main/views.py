@@ -1,22 +1,28 @@
 from django.shortcuts import render, redirect
 
+from django.http import HttpResponseForbidden
+from django.urls import reverse_lazy
+
 from .models import UsersPost
 from .forms import UsersPostForm
 from .form_regiter import CustomUserCreationForm
 
 from django.contrib.auth.views import LoginView
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+
+from django.views.generic import UpdateView
 
 
 class CustomLoginView(LoginView):
-        template_name = 'main/login_page.html'
+    template_name = 'main/login_page.html'
 
 
 def index(request):
     posts = UsersPost.objects.all()
-    return render(request, "main/index.html", {"posts": posts, "user": request.user})
+    return render(
+        request, "main/index.html", {"posts": posts, "user": request.user}
+    )
 
 
 def post_page(request):
@@ -35,7 +41,6 @@ def create_post(request):
         else:
             error = "Форма була невірною"
 
-
     form = UsersPostForm()
 
     data = {
@@ -47,19 +52,28 @@ def create_post(request):
     return render(request, "main/create_post.html", data)
 
 
-def edit_post(request):
-    return render(request, "main/edit_post.html")
+class PostUpdateViews(UpdateView):
+    """Редагування постів"""
+    model = UsersPost
+    form_class = UsersPostForm
+    template_name = "main/edit_post.html"
+    success_url = reverse_lazy("index")
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(user=self.request.user)
 
 
-@login_required
 def delete_post(request, pk):
     post = get_object_or_404(UsersPost, pk=pk)
-    
+
+    if post.user != request.user:
+        return HttpResponseForbidden("Ви не можете видалити цей пост.")
+
     if request.method == 'POST':
-        if request.user == post.user:
-            post.delete()
-            return redirect('index')
-    return render(request, 'confirm_delete.html', {'post': post})
+        post.delete()
+        return redirect('index')
+    return render(request, 'main/delete_post.html', {'post': post})
 
 
 def register_page(request):
@@ -67,15 +81,11 @@ def register_page(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login/')
+            return redirect("/login/")
     else:
         form = CustomUserCreationForm()
 
     return render(request, "main/register_page.html", {'form': form})
-
-
-# def login_page(request):
-#     return render(request, "main/login_page.html")
 
 
 def user_profile(request):

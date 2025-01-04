@@ -5,7 +5,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 
-
 class UsersPostForm(ModelForm):
     class Meta:
         model = UsersPost

@@ -33,16 +33,6 @@
     <main>
         <div class="container mt-3 text-center">
             <div class="row my-2">
-                <div class="col">
-                    <h3>Категорії:</h3>
-                    <div>
-                        <button class="btn btn-outline-primary m-1">Категорія 1</button>
-                        <button class="btn btn-outline-primary m-1">Категорія 2</button>
-                        <button class="btn btn-outline-primary m-1">Категорія 3</button>
-                    </div>
-                </div>
-            </div>
-            <div class="row my-2">
                 {% for post in posts %}
                 <div class="col-md-4">
                     <div class="card mb-4">
@@ -52,17 +42,8 @@
                             <p class="text-muted">Категория: {{ post.category }} | Автор: {{ post.user }}</p>
                             <p class="text-muted">Дата та час: {{ post.time_of_creation|date:"d.m.Y H:i" }}</p>
                             <hr>
-                            <a href="#" class="btn btn-primary">Подробнее</a>
-                            <!-- <h5 class="card-title">Заголовок Поста 1</h5>
-                            <p class="card-text">Краткое описание поста. Очень интересный контент!</p>
-                            <p class="text-muted">Автор: Иван Иванов</p>
-                            <a href="#" class="btn btn-primary">Подробнее</a> -->
-                            <!-- {% if user == post.user %}
-                            <a href="#" class="btn btn-primary">Удалить</a>
-                            {% endif %} -->
-                            <!-- <div class="col">
-                                <a href="/posts/delete/" class="btn btn-primary">Удалить</a>
-                            </div> -->
+                            <a href="{% url 'edit_post' post.id %}" class="btn btn-primary">Редактировать пост</a><hr>
+                            <a href="{% url 'delete_post' post.id %}" class="btn btn-primary">Удалить</a>
                         </div>
                     </div>
                 </div>
